@@ -37,6 +37,45 @@ public class DefaultWebServer extends WebServerBase {
 
   @Override
   protected RouteMatcher routeMatcher() {
+
+    Handler<HttpServerRequest> addAlbumHandler = new Handler<HttpServerRequest>() {
+      @Override
+      public void handle(final HttpServerRequest request) {
+        request.exceptionHandler(new Handler<Throwable>() {
+          @Override
+          public void handle(Throwable event) {
+            request.response().setStatusCode(500);
+            request.response().end(event.getMessage());
+          }
+        });
+        request.bodyHandler(new Handler<Buffer>() {
+          @Override
+          public void handle(Buffer body) {
+            final JsonObject json = new JsonObject(body.toString());
+            String validationError = validate(json);
+            if (validationError != null) {
+              request.response().setStatusCode(400);
+              request.response().end(validationError);
+            } else {
+              vertx.eventBus().send("vertx.mongo.save", json, new Handler<Message<JsonObject>>() {
+                @Override
+                public void handle(Message<JsonObject> message) {
+                  if (message.body().getString("status").equals("ok")) {
+                    json.putString("_id", message.body().getString("_id"));
+                    vertx.eventBus().publish("vertx.mongo.broadcast", json);
+                    request.response().end();
+                  } else {
+                    request.response().setStatusCode(500);
+                    request.response().end("Error: " + message.body().getString("message"));
+                  }
+                }
+              });
+            }
+          }
+        });
+      }
+    };
+
     return new RouteMatcher()
         .get("/api/albums", new Handler<HttpServerRequest>() {
           @Override
@@ -78,43 +117,8 @@ public class DefaultWebServer extends WebServerBase {
             });
           }
         })
-        .post("/api/albums", new Handler<HttpServerRequest>() {
-          @Override
-          public void handle(final HttpServerRequest request) {
-            request.exceptionHandler(new Handler<Throwable>() {
-              @Override
-              public void handle(Throwable event) {
-                request.response().setStatusCode(500);
-                request.response().end(event.getMessage());
-              }
-            });
-            request.bodyHandler(new Handler<Buffer>() {
-              @Override
-              public void handle(Buffer body) {
-                final JsonObject json = new JsonObject(body.toString());
-                String validationError = validate(json);
-                if (validationError != null) {
-                  request.response().setStatusCode(400);
-                  request.response().end(validationError);
-                } else {
-                  vertx.eventBus().send("vertx.mongo.save", json, new Handler<Message<JsonObject>>() {
-                    @Override
-                    public void handle(Message<JsonObject> message) {
-                      if (message.body().getString("status").equals("ok")) {
-                        json.putString("_id", message.body().getString("_id"));
-                        vertx.eventBus().publish("vertx.mongo.broadcast", json);
-                        request.response().end();
-                      } else {
-                        request.response().setStatusCode(500);
-                        request.response().end("Error: " + message.body().getString("message"));
-                      }
-                    }
-                  });
-                }
-              }
-            });
-          }
-        })
+        .post("/api/albums", addAlbumHandler)
+        .post("/api/albums/", addAlbumHandler)
         .noMatch(staticHandler());
   }
 

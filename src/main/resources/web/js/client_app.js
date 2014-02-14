@@ -39,7 +39,7 @@ function CartController($scope, $filter) {
 
     eb.registerHandler("vertx.mongo.broadcast", function(album) {
       if (album) {
-        console.log('Album added ' + JSON.stringify(album));
+        console.log('Adding to album list: ' + JSON.stringify(album));
         $scope.albums.push(album);
         $scope.$apply();
       } else {
