@@ -1,5 +1,4 @@
 {
-  "main":"app.js",
-  "includes":"io.vertx~mod-web-server~2.0.0-final",
+  "main":"server.js",
   "auto-redeploy": true
 }

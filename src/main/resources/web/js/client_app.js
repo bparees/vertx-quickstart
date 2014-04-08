@@ -22,7 +22,11 @@ function CartController($scope, $filter) {
   $scope.password = '';
   $scope.loggedIn = false;
 
-  var eb = new vertx.EventBus(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/eventbus');
+  var port = window.location.port;
+  if (window.location.hostname.indexOf("rhcloud.com") != -1) {
+    port = 8000;
+  }
+  var eb = new vertx.EventBus(window.location.protocol + '//' + window.location.hostname + ':' + port + '/eventbus');
 
   eb.onopen = function() {
 
@@ -37,19 +41,39 @@ function CartController($scope, $filter) {
         }
       });
 
-    eb.registerHandler("vertx.mongo.broadcast", function(album) {
-      if (album) {
-        console.log('Adding to album list: ' + JSON.stringify(album));
-        $scope.albums.push(album);
+    eb.registerHandler("vertx.mongo.broadcast", function(message) {
+      if ("save" === message.action) {
+        var newAlbum = message.document;
+        var index = $scope.indexOfAlbum(newAlbum._id);
+        if (index != -1) {
+          $scope.albums[index] = newAlbum;
+        } else {
+          $scope.albums.push(newAlbum);
+        }
         $scope.$apply();
+      } else if ("delete" === message.action) {
+        var index = $scope.indexOfAlbum(message._id);
+        if (index != -1) {
+          $scope.albums.splice(index, 1);
+          $scope.$apply();
+        }
       } else {
-        console.log("Invalid msg received: " + album);
+        console.log("Invalid msg received: " + message);
       }
     })
   };
 
   eb.onclose = function() {
     eb = null;
+  };
+
+  $scope.indexOfAlbum = function(id) {
+    for (var i=0; i < $scope.albums.length; i++) {
+      if ($scope.albums[i]._id === id) {
+        return i;
+      }
+    }
+    return -1;
   };
 
   $scope.addToCart = function(album) {
@@ -116,7 +140,7 @@ function CartController($scope, $filter) {
 
   $scope.login = function() {
     if ($scope.username.trim() != '' && $scope.password.trim() != '') {
-      eb.send('vertx.basicauthmanager.login', {username: $scope.username, password: $scope.password}, function (reply) {
+      eb.login($scope.username, $scope.password, function(reply) {
         if (reply.status === 'ok') {
           $scope.loggedIn = true;
           $scope.$apply();
