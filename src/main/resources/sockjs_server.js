@@ -4,6 +4,10 @@ inbound = [
   {
     address: 'vertx.basicauthmanager.login'
   },
+  // Allow calls to logout
+  {
+    address: 'vertx.basicauthmanager.logout'
+  },
   // Allow calls to get static album data from the persistor
   {
     address : 'vertx.mongopersistor',

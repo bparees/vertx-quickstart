@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ * Copyright 2011-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-function CartController($scope, $filter) {
+//TODO: Organize angular app better
+
+var app = angular.module('vtoons', []);
+app.controller("CartController",  ['$scope', '$filter', '$timeout', function($scope, $filter, $timeout) {
 
   $scope.items = [];
   $scope.orderSubmitted = false;
@@ -77,7 +80,6 @@ function CartController($scope, $filter) {
   };
 
   $scope.addToCart = function(album) {
-    console.log("Adding to cart: " + JSON.stringify(album));
     for (var i = 0; i < $scope.items.length; i++) {
       var compare = $scope.items[i];
       if (compare.album._id === album._id) {
@@ -131,7 +133,7 @@ function CartController($scope, $filter) {
         $scope.items = [];
         $scope.$apply();
         // Timeout the order confirmation box after 2 seconds
-        // window.setTimeout(function() { $scope.orderSubmitted(false); }, 2000);
+        $timeout(function() { $scope.orderSubmitted = false; }, 2000);
       } else {
         console.error('Failed to accept order');
       }
@@ -146,8 +148,23 @@ function CartController($scope, $filter) {
           $scope.$apply();
         } else {
           alert('invalid login');
+          $scope.username = '';
+          $scope.password = '';
         }
       });
     }
   };
-}
+
+  $scope.logout = function() {
+    eb.logout(function(reply) {
+      if (reply.status === 'ok') {
+        $scope.loggedIn = false;
+        $scope.username = '';
+        $scope.password = '';
+        $scope.$apply();
+      } else {
+        console.log("Error logging out. Reply: " + JSON.stringify(reply));
+      }
+    });
+  };
+}]);

@@ -30,10 +30,10 @@ container.deployModule('io.vertx~mod-mongo-persistor~2.0.0-final', mongoConfig, 
       action: 'save',
       collection: 'users',
       document: {
-        firstname: 'Demo',
-        lastname: 'User',
-        email: 'demo@example.com',
-        username: 'demo',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john@johndoe.com',
+        username: 'john',
         password: 'password'
       }
     });

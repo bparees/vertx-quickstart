@@ -7,7 +7,8 @@ var sendFileHandler = function(req) {
   req.response.sendFile("web" + file);
 };
 
-rm.get('/', sendFileHandler);
+rm.get('/[^/]*', sendFileHandler);
 rm.get('/js/.*', sendFileHandler);
 rm.get('/js3rdparty/.*', sendFileHandler);
 rm.get('/css/.*', sendFileHandler);
+rm.get('/fonts/.*', sendFileHandler);

@@ -1,5 +1,6 @@
+<!doctype html>
 <!--
-  ~ Copyright 2011-2012 the original author or authors.
+  ~ Copyright 2011-2014 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,170 +15,179 @@
   ~ limitations under the License.
   -->
 
-<html ng-app>
+<html lang="en" ng-app="vtoons">
 <head>
-  <link rel="stylesheet/less" href="css/bootstrap.less">
-  <script src="js3rdparty/less-1.2.1.min.js"></script>
-  <script src='js3rdparty/jquery-1.7.1.min.js'></script>
-  <script src='js3rdparty/bootstrap-tabs.js'></script>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/app.css" rel="stylesheet">
   <title>Welcome to vToons</title>
 </head>
 
 <body>
 
-<div class="container-fluid" ng-controller="CartController">
+<div class="container" data-ng-controller="CartController">
 
-  <div class="sidebar">
-    <div class="well">
-      <h2>Order total:</h2>
-
-      <h2><strong ng-bind="total() | currency"></strong></h2>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">vToons</a>
+      </div>
+      <!-- About Nav Item -->
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="https://github.com/nscavell/openshift-quickstart">Quickstart</a></li>
+              <li><a href="https://github.com/vert-x/openshift-cartridge">Cartridge</a></li>
+              <li><a href="http://vertx.io">Vert.x</a></li>
+            </ul>
+          </li>
+        </ul>
+        <!-- Logged in as Nav Item -->
+        <div data-ng-show="loggedIn">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span data-ng-bind="username"></span> <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#" data-ng-click="logout()">Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <!-- Log in Nav Item -->
+        <div data-ng-show="!loggedIn">
+          <form class="navbar-form navbar-right">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Username" data-ng-model="username">
+              <input type="password" class="form-control" placeholder="Password" data-ng-model="password">
+            </div>
+            <button type="submit" class="btn btn-default" data-ng-click="login()">Login</button>
+          </form>
+        </div>
+        <!-- Shopping cart -->
+        <ul class="nav navbar-right">
+          <li class="nav navbar-nav">
+            <a href="#" id="cart-checkout">
+              <!--http://glyphicons.com -->
+              <span class="glyphicon glyphicon-shopping-cart"></span>&nbsp;<strong data-ng-bind="total() | currency"></strong>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    Use: demo/password
-    <form class="form-stacked">
-      <label for="username">Username</label>
-      <input type="text" id="username" class="span2"
-             ng-model="username"/>
-      <label for="password">Password</label>
-      <input type="password" id="password" class="span2"
-             ng-model="password"/>
-      <br><br>
-      <input type="submit" class="btn primary" value="Login"
-             ng-click="login()"/>
-    </form>
+  <!-- Welcome -->
+  <div class="jumbotron">
+    <h1>Welcome to vToons</h1>
 
-    <br>
-
-    <div ng-show="loggedIn">
-      <h3>Logged in as</h3>
-
-      <h3><strong ng-bind="username"></strong></h3>
-    </div>
-
+    <p>I hope you will enjoy our fantastic selection of music</p>
   </div>
 
-  <div class="content">
 
-    <div class="hero-unit">
-      <h1>Welcome to vToons</h1>
+  <ul class="nav nav-tabs" id="tab">
+    <li class="active"><a id="shop-tab" href="#shop" data-toggle="tab">Shop</a></li>
+    <li><a href="#cart" id="cart-tab" data-toggle="tab">Cart</a></li>
+  </ul>
 
-      <p>I hope you will enjoy our fantastic selection of music</p>
+  <div class="tab-content">
+    <div class="tab-pane active" id="shop">
+      <h4>Please choose from our wonderful selection of songs:</h4>
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Genre</th>
+          <th>Artist</th>
+          <th>Album</th>
+          <th>Price</th>
+        </tr>
+        </thead>
+        <tbody data-ng-repeat="album in albums">
+        <tr>
+          <td data-ng-bind="album.genre"></td>
+          <td data-ng-bind="album.artist"></td>
+          <td data-ng-bind="album.title"></td>
+          <td data-ng-bind="album.price | currency"></td>
+          <td><a href="#" data-ng-click="addToCart(album)">Add to Cart</a></td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-
-    <div class="row">
-
-      <ul class="tabs">
-        <li class="active"><a href="#shop">Shop</a></li>
-        <li><a href="#cart">Cart</a></li>
-      </ul>
-
-      <div class="pill-content">
-
-        <div class="active" id="shop">
-
-          <div class="span16">
-
-            <h2>Please choose from our wonderful selection of songs:</h2>
-
-            <table class="bordered-table">
-              <thead>
-              <tr>
-                <th>Genre</th>
-                <th>Artist</th>
-                <th>Album</th>
-                <th>Price</th>
-              </tr>
-              </thead>
-              <tbody ng-repeat="album in albums">
-              <tr>
-                <td ng-bind="album.genre"></td>
-                <td ng-bind="album.artist"></td>
-                <td ng-bind="album.title"></td>
-                <td ng-bind="album.price | currency"></td>
-                <td><a href="#" ng-click="addToCart(album)">Add to
-                  Cart</a></td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-
-        <div id="cart">
-
-          <div class="alert-message info fade in"
-               ng-show="orderSubmitted">
-            <p><strong>Your order has been accepted!</strong></p>
-          </div>
-
-          <div class="alert-message warn fade in"
-               ng-show="!orderReady()">
-            <p><strong>Please add some item(s) to your cart and login before
-              submitting.</strong></p>
-          </div>
-
-          <div class="span16">
-
-            <form>
-              <fieldset>
-                <legend>Cart</legend>
-
-                <div class="actions">
-                  <input type="submit" class="btn primary" value="Submit Order"
-                         ng-click="submitOrder()"/>
-                </div>
-
-              </fieldset>
-            </form>
-
-          </div>
-
-          <div class="span16">
-
-            <table class="bordered-table">
-              <thead>
-              <tr>
-                <th>Genre</th>
-                <th>Artist</th>
-                <th>Album</th>
-                <th>Price</th>
-                <th>Quantity</th>
-              </tr>
-              </thead>
-              <tbody ng-repeat="item in items">
-              <tr>
-                <td ng-bind="item.album.genre"></td>
-                <td ng-bind="item.album.artist"></td>
-                <td ng-bind="item.album.title"></td>
-                <td ng-bind="item.album.price | currency"></td>
-                <td ng-bind="item.quantity"></td>
-                <td><a href="#"
-                       ng-click="removeFromCart(item)">Remove</a></td>
-              </tr>
-              </tbody>
-            </table>
-
-          </div>
-
-        </div>
-
+    <div class="tab-pane" id="cart">
+      <div class="alert alert-info fade in" data-ng-show="orderSubmitted">
+        <p><strong>Your order has been accepted!</strong></p>
       </div>
 
+      <div class="alert alert-warning fade in" data-ng-show="items.length == 0 && loggedIn && !orderSubmitted">
+        <p><strong>Please add some item(s) to your cart. <a href="#" id="cont-shopping">Continue shopping</a></strong></p>
+      </div>
+
+      <div class="alert alert-warning fade in" data-ng-show="!loggedIn">
+        <p><strong>You have to be signed in before you can place your order.</strong>&nbsp;&nbsp;<i>Hint: john/password</i></p>
+      </div>
+
+      <div>
+        <h3>Cart</h3>
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Genre</th>
+            <th>Artist</th>
+            <th>Album</th>
+            <th>Price</th>
+            <th>Quantity</th>
+          </tr>
+          </thead>
+          <tbody data-ng-repeat="item in items | filter:json">
+          <tr>
+            <td data-ng-bind="item.album.genre"></td>
+            <td data-ng-bind="item.album.artist"></td>
+            <td data-ng-bind="item.album.title"></td>
+            <td data-ng-bind="item.album.price | currency"></td>
+            <td data-ng-bind="item.quantity"></td>
+            <td><a href="#" data-ng-click="removeFromCart(item)">Remove</a></td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>Total</th>
+            <th><strong data-ng-bind="total() | currency"></strong></th>
+          </tr>
+          </tfoot>
+        </table>
+        <form>
+          <button type="submit" class="btn btn-default" data-ng-click="submitOrder()" data-ng-show="loggedIn && items.length &gt; 0">Submit Order</button>
+        </form>
+      </div>
+    </div>
     </div>
   </div>
 </div>
-
 </body>
 
-<script>
-  $(function () {
-    $('.tabs').tabs();
-  })
-</script>
+<script src='js3rdparty/jquery-1.11.0.min.js'></script>
+<script src='js3rdparty/bootstrap.min.js'></script>
 <script src='js3rdparty/sockjs-min-0.3.4.js'></script>
-<script src='js3rdparty/angular-1.0.1.js'></script>
+<script src='js3rdparty/angular.min.js'></script>
 <script src='js/vertxbus.js'></script>
-<script src='js/client_app.js'></script>
-
+<script src='js/app.js'></script>
+<script>
+  $('#cart-checkout').click(function() {
+    console.log("GOT HERE !!!!");
+    $('#cart-tab').tab('show');
+  });
+  $('#cont-shopping').click(function() {
+    $('#shop-tab').tab('show');
+  });
+</script>
 </html>
