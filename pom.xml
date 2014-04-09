@@ -6,7 +6,7 @@
   <groupId>io.vertx.example</groupId>
   <artifactId>openshift-quickstart</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>Project - openshift-quickstart</name>
   <url>http://maven.apache.org</url>
 
