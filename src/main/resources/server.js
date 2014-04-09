@@ -91,7 +91,7 @@ server.requestHandler(rm);
 
 load('sockjs_server.js');
 
-server.listen(host, port, function(err) {
+server.listen(port, host, function(err) {
   if (!err) {
     console.log('OpenShift Quickstart started !');
   } else {
