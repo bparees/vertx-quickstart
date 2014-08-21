@@ -7,4 +7,4 @@ The application implements a basic music store.  It is written in javascript and
 
 To deploy it, run
 
-    rhc app create <your_app_name> vertx mongodb --from-code=https://github.com/openshift-quickstart/vertx-quickstart
+    rhc app create <your_app_name> vertx mongodb-2.4 --from-code=https://github.com/openshift-quickstart/vertx-quickstart
